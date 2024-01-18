@@ -1,0 +1,102 @@
+/* src/components/ThreeColumns.css */
+.columns-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.column {
+    flex: 1;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin: 10px;
+}
+
+h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.logout {
+    display: 'flex';
+    align-items: 'end';
+    justify-content: end;
+}
+
+/* Add these styles to your CSS file */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    /* White background color for the modal */
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid black;
+    /* Black border for the modal */
+    z-index: 1000;
+    /* Ensure the modal is above other elements */
+    color: black;
+    /* Text color, adjust as needed */
+}
+
+.modal h2 {
+    margin-bottom: 10px;
+}
+
+.modal label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.modal input {
+    margin-bottom: 10px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    /* Black background color with full opacity */
+    z-index: 999;
+    /* Ensure the overlay is beneath the modal */
+}
+
+.showedUp {
+    display: flex;
+    align-items: left;
+}
+
+.create-customer-btn {
+    margin: 5px;
+    background-color: green;
+}
+.create-btns{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.editInfo{
+    margin: 5px;
+
+}
+.deleteCustomer{
+    margin: 5px;
+    background-color: #012903;;
+
+}
