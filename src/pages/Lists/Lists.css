@@ -10,7 +10,7 @@
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
     background-color: #fff;
     margin: 10px;
 }
@@ -84,19 +84,58 @@ p {
     margin: 5px;
     background-color: green;
 }
-.create-btns{
+
+.create-btns {
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 25px;
 }
 
-.editInfo{
+.editInfo {
     margin: 5px;
 
 }
-.deleteCustomer{
-    margin: 5px;
-    background-color: #012903;;
 
+.deleteCustomer {
+    margin: 5px;
+    background-color: #012903;
+
+}
+
+.div-buttons {
+    display: flex;
+    justify-content: end;
+}
+
+/* .info-use{
+    display: block;
+} */
+
+.card-color {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px;
+    background-color: rgb(206, 241, 205);
+    transition: background-color 0.3s ease-in-out;
+}
+
+.card-uncolor {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px;
+    /* background-color: rgb(247, 247, 247); */
+    transition: background-color 0.3s ease-in-out;
+}
+
+.logout-button-div {
+    display: flex;
+    justify-content: end;
+}
+
+.logout-button{
+    margin-top: 20px;
+    margin-right: 20px;
 }
