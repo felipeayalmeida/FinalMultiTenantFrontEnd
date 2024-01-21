@@ -15,7 +15,7 @@ const Lists = () => {
     const [editingCustomer, setEditingCustomer] = useState(null);
     const [creatingCustomer, setCreatingCustomer] = useState(null);
     const [creatingUser, setCreatingUser] = useState(null);
-    const [userLoggerIsAdmin, setUserLoggerIsAdmin] = useState(true);
+    const [userLoggerIsAdmin, setUserLoggerIsAdmin] = useState(false);
     const [userLoggerEmail, setUserLoggerEmail] = useState('');
     const secretKey = 'my-32-character-ultra-secure-and-ultra-long-secret-1231241234-54234234-23423-24234342342-2342423434-2342434322';
 
@@ -32,10 +32,6 @@ const Lists = () => {
         getUsersAndCustomers()
     }, [])
 
-    // useEffect(()=>{
-    //     if(localStorage.getItem('userLoggedIsAdm')==='true')
-    //     setUserLoggerIsAdmin()
-    // },[usersLists])
     function handleLogout() {
         localStorage.clear();
         navigate('/')
@@ -49,25 +45,40 @@ const Lists = () => {
             },
         };
 
-        await axios.delete(`${urlLocal}/customer?id=${customer.id}`, axiosConfig)
+        await axios.delete(`${urlDocker}/customer?id=${customer.id}`, axiosConfig)
             .then(res => getUsersAndCustomers())
             .catch(er => console.log(er));
 
     }
+    async function handleDeletedUser(user) {
+        const authToken = getAuthToken();
+        const axiosConfig = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+            },
+        };
+
+        if (user.email != userLoggerEmail)
+            await axios.delete(`${urlDocker}/admin/user?id=${user.id}`, axiosConfig)
+                .then(res => getUsersAndCustomers())
+                .catch(er => console.log(er));
+        else {
+            window.alert("Can't delete tenant")
+        }
+    }
 
 
     const getUsersAndCustomers = async () => {
-        // Obter o token armazenado
         const authToken = getAuthToken();
-
-        // Configurar os cabeçalhos com o token
         axiosConfig = {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`,
             },
         };
-        await axios.get(`${urlLocal}/admin/users`, axiosConfig).then(res => {
+
+        await axios.get(`${urlDocker}/admin/users`, axiosConfig).then(res => {
             var token = getAuthToken();
             const base64UrlPayload = token.split('.')[1];
             const base64Payload = base64UrlPayload.replace(/-/g, '+').replace(/_/g, '/');
@@ -77,20 +88,18 @@ const Lists = () => {
             setUserLoggerEmail(userEmail);
             var user = res.data.filter((user) => user.email == userEmail)
             if (user && user[0].role === 1) {
-                console.log("truee")
                 localStorage.setItem('userLoggedIsAdm', true);
                 setUserLoggerIsAdmin(true)
 
             } else {
                 localStorage.setItem('userLoggedIsAdm', false);
                 setUserLoggerIsAdmin(false)
-                console.log("falsee")
             }
             if (userLoggerIsAdmin || localStorage.getItem('userLoggedIsAdm') === 'true')
                 setUsersLists(res.data);
         })
             .catch(er => setUsersLists(null));
-        await axios.get(`${urlLocal}/customer`, axiosConfig).then(res => setCustomersLists(res.data)).catch(er => setCustomersLists(null));
+        await axios.get(`${urlDocker}/customer`, axiosConfig).then(res => setCustomersLists(res.data)).catch(er => setCustomersLists(null));
     }
 
     const handleOpenModalInfos = (customer) => {
@@ -133,9 +142,6 @@ const Lists = () => {
     }
 
     const handleUpdateCustomer = async (updatedData) => {
-        // Implement the logic to update the customer data in your state or API
-        // For example, you can use the index or a unique identifier to update the correct customer in the array.
-
         const updateScheduleData = {
             customerId: updatedData.id,
             schedule: updatedData.schedule
@@ -144,25 +150,22 @@ const Lists = () => {
             customerId: updatedData.id,
             showedUp: updatedData.customerShowedUp
         }
-        // await axios.put(`${urlLocal}/customer`, axiosConfig).then(res => setCustomersLists(res.data));
-        // Obter o token armazenado
         const authToken = getAuthToken();
 
-        // Configurar os cabeçalhos com o token
         axiosConfig = {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`,
             },
         };
-        axios.put(`${urlLocal}/customer/updateSchedule`, updateScheduleData, axiosConfig)
+        axios.put(`${urlDocker}/customer/updateSchedule`, updateScheduleData, axiosConfig)
             .then(response => {
                 if (response.data) {
                     getUsersAndCustomers();
                 }
             })
             .then(response => {
-                axios.put(`${urlLocal}/customer/updateCustomerStatus`, updateStatusData, axiosConfig)
+                axios.put(`${urlDocker}/customer/updateCustomerStatus`, updateStatusData, axiosConfig)
                     .then(response => {
                         if (response.data) {
                             getUsersAndCustomers()
@@ -174,30 +177,23 @@ const Lists = () => {
             });
 
 
-        console.log('Updated Customer Data:', updatedData);
         handleCloseModalInfos();
     };
     const handleCreateCustomer = async (newCustomer) => {
-        // Implement the logic to update the customer data in your state or API
-        // For example, you can use the index or a unique identifier to update the correct customer in the array.
-
         const createCustomerData = {
             name: newCustomer.name,
             schedule: newCustomer.schedule
         }
 
-        // await axios.put(`${urlLocal}/customer`, axiosConfig).then(res => setCustomersLists(res.data));
-        // Obter o token armazenado
         const authToken = getAuthToken();
 
-        // Configurar os cabeçalhos com o token
         axiosConfig = {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`,
             },
         };
-        axios.post(`${urlLocal}/customer/`, createCustomerData, axiosConfig)
+        axios.post(`${urlDocker}/customer/`, createCustomerData, axiosConfig)
             .then(response => {
                 if (response.data) {
                     setIsModalOpenCustomer(false);
@@ -205,6 +201,7 @@ const Lists = () => {
                 }
             })
             .catch(error => {
+                window.alert(`${error.response.data}`)
                 console.error('Error Creating Customer:', error);
             });
 
@@ -212,26 +209,20 @@ const Lists = () => {
         handleCloseModalUser();
     };
     const handleCreateUser = async (newUser) => {
-        // Implement the logic to update the customer data in your state or API
-        // For example, you can use the index or a unique identifier to update the correct customer in the array.
 
         const createUserData = {
             email: newUser.email,
             password: newUser.password
         }
-
-        // await axios.put(`${urlLocal}/customer`, axiosConfig).then(res => setCustomersLists(res.data));
-        // Obter o token armazenado
         const authToken = getAuthToken();
 
-        // Configurar os cabeçalhos com o token
         axiosConfig = {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`,
             },
         };
-        axios.post(`${urlLocal}/admin/user`, createUserData, axiosConfig)
+        axios.post(`${urlDocker}/admin/user`, createUserData, axiosConfig)
             .then(response => {
                 if (response.data) {
                     setIsModalOpenCustomer(false);
@@ -239,6 +230,7 @@ const Lists = () => {
                 }
             })
             .catch(error => {
+                window.alert(`${error.response.data}`)
                 console.error('Error Creating User:', error);
             });
 
@@ -261,7 +253,6 @@ const Lists = () => {
     };
 
 
-    // ...
     return (
         <>
             <div >
@@ -275,17 +266,21 @@ const Lists = () => {
                     <h3>Users</h3>
                     {userLoggerIsAdmin ? usersLists?.map((user, index) => (
                         <div key={index} className="column">
-                            {/* <h3>{`Column ${index + 1}`}</h3> */}
                             <p>{`Email: ${user.email}`}</p>
                             <p>{`Role: ${user.role == 1 ? 'Admin' : 'Secretary'}`}</p>
-                            {/* Add more lines or customize based on your user object */}
+                            <button
+                                // disabled={!localStorage.getItem('userLoggedIsAdm') || userLoggerIsAdmin}
+                                className='deleteCustomer'
+                                onClick={() => { handleDeletedUser(user) }}
+                            >
+                                Delete User
+                            </button>
+
                         </div>
                     )) : (
                         <div className="column">
-                            {/* <h3>{`Column ${index + 1}`}</h3> */}
                             <p>{`Email: ${userLoggerEmail}`}</p>
                             <p>{`Role: Secretary`}</p>
-                            {/* Add more lines or customize based on your user object */}
                         </div>
                     )
                     }
@@ -295,20 +290,18 @@ const Lists = () => {
                     <h3>Customers</h3>
                     {!!customersLists && customersLists.map((customer, index) => (
                         <div key={index} className="column">
-                            {/* <h3>{`Column ${index + 1}`}</h3> */}
                             <p>{`Name: ${customer.name}`}</p>
                             <p>{`Schedule: ${transformDateFormat(customer.schedule)}`}</p>
-                            <p>{`CustomerShowedUp: ${customer.customerShowedUp == true ? 'Yes' : 'No'}`}</p>
+                            <p>{`Showed Up: ${customer.customerShowedUp == true ? 'Yes' : 'No'}`}</p>
                             <button className='editInfo' onClick={() => { handleOpenModalInfos(customer) }}>Edit Infos</button>
                             <button className='deleteCustomer' onClick={() => { handleDeletedeCustomer(customer) }}>Delete Customer</button>
-                            {/* Add more lines or customize based on your user object */}
                         </div>
                     ))}
+
                     {isModalOpen && editingCustomer && (
                         <div className="modal">
                             <h2>Edit Customer Information</h2>
                             <p>{`Editing customer: ${editingCustomer.name}`}</p>
-                            {/* Add your input fields for editing here */}
                             <label>DATE:</label>
                             <input
                                 type="datetime-local"
@@ -333,19 +326,15 @@ const Lists = () => {
                     {isModalOpenCustomer && (
                         <div className="modal">
                             <h2>Create Customer</h2>
-                            {/* <p>{`Creating customer: ${editingCustomer.name}`}</p> */}
-                            {/* Add your input fields for editing here */}
                             <label>Name:</label>
                             <input
                                 type="text"
-                                // value={creatingCustomer ?? ''}
                                 onChange={(e) => setCreatingCustomer({ ...creatingCustomer, name: e.target.value })}
                             />
                             <div className='showedUp'>
                                 <label>DATE:</label>
                                 <input
                                     type="datetime-local"
-                                    // value={creatingCustomer ?? null}
                                     onChange={(e) => setCreatingCustomer({ ...creatingCustomer, schedule: e.target.value })}
                                 />
                             </div>
@@ -358,18 +347,14 @@ const Lists = () => {
                     {isModalOpenUser && (
                         <div className="modal">
                             <h2>Create User</h2>
-                            {/* <p>{`Creating customer: ${editingCustomer.name}`}</p> */}
-                            {/* Add your input fields for editing here */}
                             <label>Email:</label>
                             <input
                                 type="email"
-                                // value={creatingCustomer ?? ''}
                                 onChange={(e) => setCreatingUser({ ...creatingUser, email: e.target.value })}
                             />
                             <label>Password:</label>
                             <input
                                 type="text"
-                                // value={creatingCustomer ?? ''}
                                 onChange={(e) => setCreatingUser({ ...creatingUser, password: e.target.value })}
                             />
                             <button onClick={() => handleCreateUser(creatingUser)}>Save Changes</button>
@@ -382,15 +367,16 @@ const Lists = () => {
             <div className='create-btns'>
                 <button
                     className='create-customer-btn'
-                    onClick={() => handleOpenCreateCustomerModal()}
+                    onClick={() => handleOpenCreateUserModal()}
+                // disabled={userLoggerIsAdmin}
                 >
-                    Create Customer
+                    Create User
                 </button>
                 <button
                     className='create-customer-btn'
-                    onClick={() => handleOpenCreateUserModal()}
+                    onClick={() => handleOpenCreateCustomerModal()}
                 >
-                    Create User
+                    Create Customer
                 </button>
 
             </div>
