@@ -19,7 +19,8 @@ const Login = () => {
       'Content-Type': 'application/json',
     },
   };
-  var urlLocal = "http://localhost:5108/api";
+  // var urlLocal = "http://localhost:5108/api";
+  // var urlDocker = "http://localhost:8088/api";
   var urlDocker = "http://localhost:8088/api";
 
   const storeToken = (token) => {
@@ -77,14 +78,14 @@ const Login = () => {
       <div className="login-container">
         <h2>Login</h2>
         <form>
-          <label>
+          <label >
             Tenant:
-            <input type="text" value={tenant} onChange={(e) => setTenant(e.target.value)} />
+            <input type="text" value={tenant} style={{marginLeft:'27px'}} onChange={(e) => setTenant(e.target.value)} />
           </label>
           <br />
           <label>
-            '   'Email:
-            <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+            Email:
+            <input type="text" value={email} style={{marginLeft:'35px'}} onChange={(e) => setEmail(e.target.value)} />
           </label>
           <br />
           <label>
@@ -95,7 +96,7 @@ const Login = () => {
           <button type="button" onClick={() => handleLogin()}>
             Login
           </button>
-          {error.length > 1 ? <p>{error}</p> : ''}
+          {error.length > 1 ? <p style={{color:'red'}}>{error}</p> : ''}
         </form>
       </div>
 

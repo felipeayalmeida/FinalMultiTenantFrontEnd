@@ -29,6 +29,7 @@
   label {
     margin-bottom: 8px;
     color: #333;
+    font-weight: bold;
   }
   
   input {
@@ -48,9 +49,9 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  
+/*   
   button:hover {
-  }
+  } */
   
   /* Add these styles to your CSS file */
 .modal {

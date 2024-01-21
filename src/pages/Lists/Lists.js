@@ -17,10 +17,13 @@ const Lists = () => {
     const [creatingUser, setCreatingUser] = useState(null);
     const [userLoggerIsAdmin, setUserLoggerIsAdmin] = useState(false);
     const [userLoggerEmail, setUserLoggerEmail] = useState('');
+    const [userUserLoggerTenant, setUserLoggerTenant] = useState('');
+    const [updateCustomerError, setUpdateCustomerError] = useState('');
     const secretKey = 'my-32-character-ultra-secure-and-ultra-long-secret-1231241234-54234234-23423-24234342342-2342423434-2342434322';
 
     var axiosConfig = '';
-    var urlLocal = "http://localhost:5108/api";
+    // var urlLocal = "http://localhost:5108/api";
+    // var urlDocker = "http://localhost:8088/api";
     var urlDocker = "http://localhost:8088/api";
 
 
@@ -83,7 +86,7 @@ const Lists = () => {
             const base64UrlPayload = token.split('.')[1];
             const base64Payload = base64UrlPayload.replace(/-/g, '+').replace(/_/g, '/');
             const payload = JSON.parse(atob(base64Payload));
-
+            setUserLoggerTenant(payload.tenantId);
             const userEmail = (payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']);
             setUserLoggerEmail(userEmail);
             var user = res.data.filter((user) => user.email == userEmail)
@@ -171,13 +174,15 @@ const Lists = () => {
                             getUsersAndCustomers()
                         }
                     })
+                    handleCloseModalInfos();
+                    setUpdateCustomerError('')
             })
             .catch(error => {
+                setUpdateCustomerError(error.response.data)
                 console.error('Error Update:', error);
             });
 
 
-        handleCloseModalInfos();
     };
     const handleCreateCustomer = async (newCustomer) => {
         const createCustomerData = {
@@ -255,26 +260,37 @@ const Lists = () => {
 
     return (
         <>
-            <div >
-                <button onClick={() => handleLogout()}>Logout</button>
+            <div className='logout-button-div' >
+                <button className='logout-button' onClick={() => handleLogout()}>Logout</button>
             </div>
             <h1>Calendar Scheduler</h1>
             <h2>User: {!!userLoggerEmail && userLoggerEmail}</h2>
-            <h2>Tenant Id: {!!usersLists && usersLists[0]?.tenantId}</h2>
+            <h2>Tenant Id: {!!userUserLoggerTenant && userUserLoggerTenant}</h2>
             <div className="columns-container">
                 <div className='column'>
                     <h3>Users</h3>
-                    {userLoggerIsAdmin ? usersLists?.map((user, index) => (
+                    {!!usersLists && userLoggerIsAdmin ? usersLists?.map((user, index) => (
                         <div key={index} className="column">
-                            <p>{`Email: ${user.email}`}</p>
-                            <p>{`Role: ${user.role == 1 ? 'Admin' : 'Secretary'}`}</p>
-                            <button
-                                // disabled={!localStorage.getItem('userLoggedIsAdm') || userLoggerIsAdmin}
-                                className='deleteCustomer'
-                                onClick={() => { handleDeletedUser(user) }}
-                            >
-                                Delete User
-                            </button>
+                            <div className='info-user'>
+                                <p><b>Email:</b>{` ${user.email}`}</p>
+                                <p><b>Role:</b>{` ${user.role == 1 ? 'Admin' : 'Secretary'}`}</p>
+                                <div className='div-buttons'>
+                                    {/* <p> */}
+                                    <button
+                                        // disabled={!localStorage.getItem('userLoggedIsAdm') || userLoggerIsAdmin}
+                                        className='deleteCustomer'
+                                        onClick={() => { handleDeletedUser(user) }}
+                                    >
+                                        Delete User
+                                    </button>
+                                    {/* </p> */}
+
+                                </div>
+
+                            </div>
+                            <div className='info-user'>
+
+                            </div>
 
                         </div>
                     )) : (
@@ -289,13 +305,29 @@ const Lists = () => {
                 <div className='column'>
                     <h3>Customers</h3>
                     {!!customersLists && customersLists.map((customer, index) => (
-                        <div key={index} className="column">
-                            <p>{`Name: ${customer.name}`}</p>
-                            <p>{`Schedule: ${transformDateFormat(customer.schedule)}`}</p>
-                            <p>{`Showed Up: ${customer.customerShowedUp == true ? 'Yes' : 'No'}`}</p>
-                            <button className='editInfo' onClick={() => { handleOpenModalInfos(customer) }}>Edit Infos</button>
-                            <button className='deleteCustomer' onClick={() => { handleDeletedeCustomer(customer) }}>Delete Customer</button>
-                        </div>
+                        // <div key={index} className="column">
+                        customer.customerShowedUp ?
+                            <div className='card-color'>
+                                <p><b>Name:</b>{` ${customer.name}`}</p>
+                                <p><b>Schedule:</b>{` ${transformDateFormat(customer.schedule)}`}</p>
+                                <p><b>Showed Up:</b>{` ${customer.customerShowedUp == true ? 'Yes' : 'No'}`}</p>
+                                <div className='div-buttons'>
+                                    <button className='editInfo' onClick={() => { handleOpenModalInfos(customer) }}>Edit Infos</button>
+                                    <button className='deleteCustomer' onClick={() => { handleDeletedeCustomer(customer) }}>Delete Customer</button>
+                                </div>
+                            </div>
+                            :
+                            <div className='card-uncolor'>
+                                <p><b>Name:</b>{` ${customer.name}`}</p>
+                                <p><b>Schedule:</b>{` ${transformDateFormat(customer.schedule)}`}</p>
+                                <p><b>Showed Up:</b>{` ${customer.customerShowedUp == true ? 'Yes' : 'No'}`}</p>
+                                <div className='div-buttons'>
+                                    <button className='editInfo' onClick={() => { handleOpenModalInfos(customer) }}>Edit Infos</button>
+                                    <button className='deleteCustomer' onClick={() => { handleDeletedeCustomer(customer) }}>Delete Customer</button>
+                                </div>
+                            </div>
+
+                        // </div>
                     ))}
 
                     {isModalOpen && editingCustomer && (
@@ -319,7 +351,7 @@ const Lists = () => {
                             </div>
                             <button onClick={() => handleUpdateCustomer(editingCustomer)}>Save Changes</button>
                             <button onClick={handleCloseModalInfos}>Cancel</button>
-
+                            {updateCustomerError.length > 1 ? <p style={{color:'red'}}>{updateCustomerError}</p> : ''}
                         </div>
                     )}
 
